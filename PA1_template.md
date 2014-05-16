@@ -204,8 +204,37 @@ median(sumByDate2$x)
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
+MAYBE... stay tuned.
 
 
+```r
+## add weekday and weekend flag to data set with imputed values:
+amImpute2 <- amImpute
+amImpute2$weekday <- weekdays(amImpute$date)
+amImpute2$weekend <- amImpute2$weekday %in% c("Saturday", "Sunday")
+
+## work out interval averages by weekday/weekend:
+avgSteps2 <- aggregate(amImpute2$steps, list(Interval = as.numeric(as.character(amImpute2$interval))), 
+    mean)
+
+avgWeekdaySteps <- aggregate(amImpute2[amImpute2$weekend == FALSE, ]$steps, 
+    list(Interval = as.numeric(as.character(amImpute2[amImpute2$weekend == FALSE, 
+        ]$interval))), mean)
+
+avgWeekendSteps <- aggregate(amImpute2[amImpute2$weekend == TRUE, ]$steps, list(Interval = as.numeric(as.character(amImpute2[amImpute2$weekend == 
+    TRUE, ]$interval))), mean)
+
+## construct interval average dataset for faceted plot:
+avgWeekdaySteps$daytype <- "Weekday"
+avgWeekendSteps$daytype <- "Weekend"
+splitAverageIntervals <- rbind(avgWeekendSteps, avgWeekdaySteps)
+
+## plot:
+qplot(data = splitAverageIntervals, Interval, x, facets = daytype ~ ., geom = "line", 
+    main = "Average Interval steps by day type", ylab = "Average steps")
+```
+
+![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13.png) 
 
 
 
