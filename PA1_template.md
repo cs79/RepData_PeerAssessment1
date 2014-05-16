@@ -63,7 +63,7 @@ with missing values stripped from the data:
 library(ggplot2)
 am2 <- am[complete.cases(am), ]
 sumByDate <- aggregate(am2$steps, list(Date = am2$date), sum)
-qplot(sumByDate$Date, sumByDate$x, geom = "bar", stat = "identity", main = "Steps per Day", 
+qplot(sumByDate$Date, sumByDate$x, geom = "bar", stat = "identity", main = "Total Steps per Day", 
     xlab = "Date", ylab = "Steps (daily sum)")
 ```
 
@@ -145,11 +145,28 @@ nrow(am) - nrow(am[complete.cases(am), ])
 ```
 
 
+N.B. that this number is exactly divisible by 288 (the number of intervals per 
+day) -- indicating that there are 8 days for which data was entirely unavailable. 
+We can verify that this is the case as follows:
+
+
+```r
+levels(as.factor(am[is.na(am$steps), ]$date))
+```
+
+```
+## [1] "2012-10-01" "2012-10-08" "2012-11-01" "2012-11-04" "2012-11-09"
+## [6] "2012-11-10" "2012-11-14" "2012-11-30"
+```
+
+
+This will be of significance shortly.
+
 Next, we impute missing values using a simplistic method that assigns the 
-interval mean to each missing value.  This method assumes that daily activity 
-will be roughly cyclical, which may not actually be the case, so a more 
-sophisticated method could be devised. For the sake of convenience, however, we 
-will make this simplifying assumption and fill in missing values in a new copy 
+interval mean to each missing value.  This method assumes that daily interval 
+activity will not be highly variable, which may not actually be the case, so a 
+more sophisticated method could be devised. For the sake of convenience, however, 
+we will make this simplifying assumption and fill in missing values in a new copy 
 of the original data set:
 
 
@@ -172,13 +189,15 @@ qplot(sumByDate2$Date, sumByDate2$x, geom = "bar", stat = "identity", main = "St
     xlab = "Date", ylab = "Steps (daily sum)")
 ```
 
-![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11.png) 
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12.png) 
 
 
 While this new histogram is less patchy than the original, there are still some 
-gaps, where data was missing for a given interval that happened to be zero or 
-near zero on average, illustrating a shortcoming of the imputation technique 
-used.
+gaps where data was recorded as zero for nearly every interval in a day, but not 
+all -- this suggests that perhaps the recording device was either malfunctioning 
+or not worn for most of the duration of those days, and a more robust imputation 
+technique might discount those days and impute values for their intervals that 
+were recorded as zero as well.
 
 We can also examine the mean and median for the data set with imputed values:
 
@@ -200,11 +219,24 @@ median(sumByDate2$x)
 ```
 
 
-<div style="color:red">There appears to be no significant difference from the initial histogram, indicating that I have screwed up somewhere....</div>
+Note that there is essentially no difference in these values as compared to the 
+initial computations: this is a direct result of the imputation method selected. 
+As the missing values are for 8 complete days, the imputation method adds 8 
+complete copies of an "average" day to the dataset. This has exactly no effect 
+on the mean (as 8 copies of the daily mean are being added), and the median, 
+which was coincidentally very close to the mean initially, has now been replaced 
+by one of the copies of the mean value added via imputation.
+
+Again, this suggests that a better imputation method could be devised, but your 
+author is not sufficiently sophisticated to come up with one.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-MAYBE... stay tuned.
+We can examine the data set with imputed values in further detail to see if there 
+are differences in average steps per interval between weekdays and weekends.
+
+First, some processing in R to get the new dataset with interval averages and a 
+new factor variable for weekday/weekend identification:
 
 
 ```r
@@ -225,17 +257,26 @@ avgWeekendSteps <- aggregate(amImpute2[amImpute2$weekend == TRUE, ]$steps, list(
     TRUE, ]$interval))), mean)
 
 ## construct interval average dataset for faceted plot:
-avgWeekdaySteps$daytype <- "Weekday"
-avgWeekendSteps$daytype <- "Weekend"
+avgWeekdaySteps$daytype <- factor("Weekday")
+avgWeekendSteps$daytype <- factor("Weekend")
 splitAverageIntervals <- rbind(avgWeekendSteps, avgWeekdaySteps)
+```
 
-## plot:
+
+Now we can construct a panel plot with individual time series data for weekends 
+versus weekday average steps per interval:
+
+
+```r
 qplot(data = splitAverageIntervals, Interval, x, facets = daytype ~ ., geom = "line", 
     main = "Average Interval steps by day type", ylab = "Average steps")
 ```
 
-![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13.png) 
+![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15.png) 
 
 
-
-
+As can be seen here, there is a slight difference in trend; the weekend intervals 
+in the middle of the day have a greater number of steps (perhaps due to less 
+time being spent sitting at a workplace), and while both day types have a spike 
+in the morning, weekdays appear to have a second spike in the evening whereas the 
+data for weekends are generally choppier throughout the day.
