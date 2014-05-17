@@ -72,7 +72,9 @@ qplot(sumByDate$Date, sumByDate$x, geom = "bar", stat = "identity", main = "Tota
 
 The data appear roughly bimodal, and some days have no activity recorded.  We
 can also compute some summary statistics on a daily basis for total number of
-steps taken:
+steps taken.
+
+Total daily steps mean:
 
 
 ```r
@@ -82,6 +84,10 @@ mean(sumByDate$x)
 ```
 ## [1] 10766
 ```
+
+
+Total daily steps median:
+
 
 ```r
 median(sumByDate$x)
@@ -108,7 +114,7 @@ qplot(avgSteps$Interval, avgSteps$x, geom = "line", stat = "identity", main = "A
     xlab = "Interval", ylab = "Steps (daily average)")
 ```
 
-![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7.png) 
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
 
 
 The daily interval with the maximum average across all days in the dataset can 
@@ -125,7 +131,7 @@ avgSteps[grep(max(avgSteps$x), avgSteps$x), ]
 ```
 
 
-Therefore the interval of 835 has the highest daily average number of steps.
+Therefore interval 835 has the highest daily average number of steps.
 
 ## Imputing missing values
 
@@ -189,7 +195,7 @@ qplot(sumByDate2$Date, sumByDate2$x, geom = "bar", stat = "identity", main = "St
     xlab = "Date", ylab = "Steps (daily sum)")
 ```
 
-![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12.png) 
+![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13.png) 
 
 
 While this new histogram is less patchy than the original, there are still some 
@@ -272,7 +278,7 @@ qplot(data = splitAverageIntervals, Interval, x, facets = daytype ~ ., geom = "l
     main = "Average Interval steps by day type", ylab = "Average steps")
 ```
 
-![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15.png) 
+![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16.png) 
 
 
 As can be seen here, there is a slight difference in trend; the weekend intervals 

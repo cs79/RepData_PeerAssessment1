@@ -58,10 +58,17 @@ qplot(sumByDate$Date, sumByDate$x, geom="bar", stat="identity",
 
 The data appear roughly bimodal, and some days have no activity recorded.  We
 can also compute some summary statistics on a daily basis for total number of
-steps taken:
+steps taken.
+
+Total daily steps mean:
 
 ```{r}
 mean(sumByDate$x)
+```
+
+Total daily steps median:
+
+```{r}
 median(sumByDate$x)
 ```
 
@@ -87,7 +94,7 @@ be obtained as follows:
 avgSteps[grep(max(avgSteps$x), avgSteps$x),]
 ```
 
-Therefore the interval of 835 has the highest daily average number of steps.
+Therefore interval 835 has the highest daily average number of steps.
 
 ## Imputing missing values
 
